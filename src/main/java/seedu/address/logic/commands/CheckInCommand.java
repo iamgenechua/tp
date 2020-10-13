@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.booking.Booking;
+import seedu.address.model.booking.exception.ConflictingBookingException;
+import seedu.address.model.booking.exception.DuplicateBookingException;
 
 /**
  * Encapsulates the Check In feature.
@@ -29,11 +31,12 @@ public class CheckInCommand extends Command {
             + PREFIX_START_DATE + "2020-09-14 "
             + PREFIX_END_DATE + "2020-09-17";
 
-    public static final String MESSAGE_NOT_IMPLEMENTED_YET = "checkIn command not implemented yet";
     public static final String MESSAGE_ARGUMENTS = "Personal id: %1$d, Room Id: %2$d, Start date: %3$s, End date: %4$s";
     public static final String MESSAGE_PERSONAL_ID_MISSING = "No valid personalId can be found.";
     public static final String MESSAGE_ROOM_ID_MISSING = "No valid roomId can be be found";
     public static final String MESSAGE_SUCCESS = "Successfully checked in: %s";
+    public static final String MESSAGE_CONFLICTING_BOOKING = "The room has already been booked during this period";
+    public static final String MESSAGE_DUPLICATE_BOOKING = "Cannot add duplicate booking";
 
     private final int personalId;
     private final int roomId;
@@ -70,8 +73,18 @@ public class CheckInCommand extends Command {
         }
 
         booking = new Booking(roomId, personalId, startDate, endDate, true);
-        model.addBooking(booking);
-        return new CommandResult(String.format(MESSAGE_SUCCESS, booking));
+        int bookingId = booking.getId();
+
+        try {
+            model.addBooking(booking);
+            return new CommandResult(String.format(MESSAGE_SUCCESS, booking));
+        } catch (DuplicateBookingException e) {
+            Booking.setNextAvailableId(bookingId);
+            throw new CommandException(MESSAGE_DUPLICATE_BOOKING);
+        } catch (ConflictingBookingException e) {
+            Booking.setNextAvailableId(bookingId);
+            throw new CommandException(MESSAGE_CONFLICTING_BOOKING);
+        }
     }
 
     @Override
