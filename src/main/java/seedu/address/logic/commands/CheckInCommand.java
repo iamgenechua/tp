@@ -36,7 +36,7 @@ public class CheckInCommand extends Command {
     public static final String MESSAGE_ROOM_ID_MISSING = "No valid roomId can be be found";
     public static final String MESSAGE_SUCCESS = "Successfully checked in: %s";
     public static final String MESSAGE_CONFLICTING_BOOKING = "The room has already been booked during this period";
-    public static final String MESSAGE_DUPLICATE_BOOKING = "Cannot add duplicate booking";
+    public static final String MESSAGE_PAST_BOOKING = "Cannot create bookings in the past!";
 
     private final int personalId;
     private final int roomId;
@@ -72,15 +72,16 @@ public class CheckInCommand extends Command {
             throw new CommandException(MESSAGE_ROOM_ID_MISSING);
         }
 
+        if (startDate.isBefore(LocalDate.now())) {
+            throw new CommandException(MESSAGE_PAST_BOOKING);
+        }
+
         booking = new Booking(roomId, personalId, startDate, endDate, true);
         int bookingId = booking.getId();
 
         try {
             model.addBooking(booking);
             return new CommandResult(String.format(MESSAGE_SUCCESS, booking));
-        } catch (DuplicateBookingException e) {
-            Booking.setNextAvailableId(bookingId);
-            throw new CommandException(MESSAGE_DUPLICATE_BOOKING);
         } catch (ConflictingBookingException e) {
             Booking.setNextAvailableId(bookingId);
             throw new CommandException(MESSAGE_CONFLICTING_BOOKING);
