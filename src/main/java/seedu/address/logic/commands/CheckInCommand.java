@@ -12,7 +12,6 @@ import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.booking.Booking;
 import seedu.address.model.booking.exception.ConflictingBookingException;
-import seedu.address.model.booking.exception.DuplicateBookingException;
 
 /**
  * Encapsulates the Check In feature.

@@ -77,9 +77,9 @@ public class CommandTestUtil {
             DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     public static final LocalDate VALID_END_DATE_DAN = LocalDate.parse("2020-11-21",
             DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    public static final LocalDate VALID_START_DATE_GENE = LocalDate.parse("2020-01-30",
+    public static final LocalDate VALID_START_DATE_GENE = LocalDate.parse("2025-01-30",
             DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    public static final LocalDate VALID_END_DATE_GENE = LocalDate.parse("2020-06-06",
+    public static final LocalDate VALID_END_DATE_GENE = LocalDate.parse("2025-06-06",
             DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
 
