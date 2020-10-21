@@ -19,6 +19,7 @@ import seedu.address.model.UserPrefs;
 import seedu.address.model.booking.Booking;
 import seedu.address.model.booking.exception.BookingNotFoundException;
 import seedu.address.model.room.Room;
+import seedu.address.model.roomservice.RoomService;
 
 /**
  * Contains integration tests (interaction with the Model) and unit tests for GetBillCommand.
@@ -41,10 +42,14 @@ public class GetBillCommandTest {
                 + "Dining in service: 50\n";
 
         GetBillCommand command = new GetBillCommand(VALID_BOOKING_ID_DAN);
+        int totalPrice = booking.getDuration() * pricePerNight;
+        for (RoomService rs : model.getRoomServicesForBooking(VALID_BOOKING_ID_DAN)) {
+            totalPrice += rs.getType().getPrice();
+        }
         assertEquals(roomServices
                         + String.format(GetBillCommand.MESSAGE_SUCCESS_GET_BILL,
                 VALID_BOOKING_ID_DAN,
-                booking.getDuration() * pricePerNight),
+                totalPrice),
             command.execute(model).getFeedbackToUser());
     }
 

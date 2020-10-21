@@ -131,9 +131,60 @@ Classes used by multiple components are in the `seedu.addressbook.commons` packa
 
 ## **Implementation**
 
-This section describes some noteworthy details on how certain features are implemented.  
+This section describes some noteworthy details on how certain features are implemented.
 
-#### Implementation
+
+<!-- Create Booking Class -->
+#### Booking Class
+A `Booking` class is created as an association class of the Person and Room class. Accordingly, `BookingBook` and a 
+series of other commands associated with Booking are also created. A `Booking` object is created using the `checjIn`
+feature; it can be modified using editBooking and can be deleted from the database using `deleteBooking`.
+
+<!-- Create Booking Class -->
+
+<!-- Find Booking feature -->
+#### Find Booking feature  
+1.1 Find Booking: finds booking(s) with the following parameters:
+`findBooking`
+FindBooking features will be used in different senarios: 
+
+1. When the user wish to know the detailed information about a booking. For example, a customer wish to know which room
+is he/she checked into. The user can find the room besed on the customer Id, the start date and the end date of the
+ booking
+                                                            
+2. When the user wish to delete/edit a Booking, the user will find the Booking with the relevant parameter first. For 
+example, if a customer wish to cancel his booking, the customer Id, the start date and the end date of the booking will
+be provided. The user then can use the above information to find out about the booking id which is needed by
+other features.
+
+Given below is the example usage scenario:
+Step 1: As the user launch the App, the Booking book will load the data from memory, the filteredBookings includes all
+the bookings in the bookingList.
+
+Step 2: The user will execute `findBooking pid/3 sd/2020-09-12 ed/2020-09-12`, trying to find the Booking 
+associated with person id 1 which starts on 2020-09-12 and end on 2020-09-12. If such booking exist, the Command will 
+update the filteredList in the model so UI will update to only show the relevant bookings. 
+The user then can view the complete information about the booking(s), 
+including the booking id, the room id, the person id, the start and end date, and the isActive state.
+
+Step 3: If the user input is invalid, an error message will be displayed regarding the wrong fields. If no booking
+which meet the parameters can be found, the filteredList will be empty hence no
+booking will be displayed in UI.
+
+The following sequence diagram shows how the findBooking operation works:
+![FindBookingDiagram](images/FindBookingDiagram.png)
+
+#### Design consideration:
+Aspect: which parameters should be allowed to use in find Booking?
+- Alternative 1 (current choice): roomId, personId, startDate, endDate, and isActive state
+    - Pros: Easy to implement.
+    - Cons: Not as convenient as the user would have to search up for the personId first
+- Alternative 2: person's name or phone number
+    - Pros: More user-friendly as the user only need to key in information once
+    - Cons: There are more complexity involved for one feature. When a booking cannot be found, it could be due to
+    there is no person information matches up with the given details (the person is not present in the database), or 
+    due to a field provided by the customer is incorrect so there is no matching.
+<!-- Find Booking feature -->
 
 <!-- Check In feature -->
 
@@ -257,6 +308,114 @@ will be similarly shown as well.
  
 
 <!-- Room service feature -->
+
+<!-- Filter Room feature --> 
+### Filter Room feature 
+#### Description
+ConciergeBook allows our user to run the `CheckIn` Command with a Room ID that is not being occupied 
+between the indicated start and end date. 
+
+Our user can find out which rooms of certain types are available within a stated start and end dates using the 
+`FilterRoom` Command. This room ID can subsequently be used for checking in a guest. 
+
+#### Implementation 
+The Filter Room feature is facilitated by the `FilterRoomCommand`. It has the following fields: 
+* `sd`: The start date
+* `ed`: The end date
+* `typ`: The type of room that the user is filtering. The possible types are `SINGLE` (indicated by `1`), `DOUBLE` 
+(indicated by `2`) and `SUITE` (indicated by `3`). 
+The start date and end date are compulsory fields, while the room type is optional. Omission of the room type will 
+result in displaying rooms of all types. 
+
+Given are several examples of usage scenarios when the user prompts to Filter Rooms: 
+
+**Scenario 1**. When the user provides a command with incomplete compulsory fields (e.g. end date), the 
+`FilterRoomCommandParser` will throw a `ParseException`, informing that the command is invalid and will return a 
+message indicating the correct usage for the `FilterRoomCommand`. 
+
+![FilterRoomSequenceDiagram](images/FilterRoomSequenceDiagram1.png)
+
+A similar flow will occur if the user provides an end date that is earlier that is earlier than the inputted start date. 
+The `FilterRoomCommandParser` will throw a `ParseException(“Start Date must be before End Date!”)`. The same will occur
+if the `typ` parameter is invalid (e.g. not 1, 2, or 3). It will throw a 
+`ParseException(“Invalid Room Type. Only 1, 2, 3 allowed.”)`
+
+**Scenario 2 (Ideal Scenario)**. Here is the Sequence Diagram for the `FilterRoomCommand` for an ideal case 
+(minor method calls are omitted). 
+
+![FilterRoomSequenceDiagram](images/FilterRoomSequenceDiagram2.png)
+
+#### Getting the availableRooms from Model 
+Obtaining the list of rooms of the indicated room type which are available between the start and end date is done 
+in a 3-step process: 
+1. Retrieve the unavailable rooms from the `BookingBook` using the `getUnavailableRooms` method. 
+2. Retrieve a list of available rooms by passing the list of unavailable rooms into the `RoomBook` using the 
+`getAvailableRooms` method. 
+3. The list of available rooms is then filtered by room type, as indicated by the user. 
+
+The following activity diagram summarises what happens when a user executes a `filterRoom` command:
+
+![FilterRoomActivityDiagram](images/FilterRoomActivityDiagram.png)
+
+
+
+#### Design consideration:
+##### Aspect: Retrieving available rooms
+**Alternative 1 (current choice)**: Retrieve unavailable rooms from BookingBook first, then retrieve the 
+desired list from RoomBook. 
+* Pros: Ensures that less dependency on the RoomBook. 
+* Cons: Have a slightly lower execution time. 
+
+**Alternative 2**: Rooms should have a field to indicate when they are occupied. 
+* Pros: Reduces a 2-step process into a 1-step process. 
+* Cons: Strong coupling between Room and Booking. 
+Increases the complexity of other commands, such as editBooking and CheckOut due to the increased dependency. 
+
+<!-- Filter Room feature --> 
+
+<!-- Edit booking feature -->
+### Edit Booking feature 
+
+The edit booking feature is facilitated by:
+1. `Booking` class. `Booking` objects represent the target booking to be replaced and edited booking.
+2. `BookingBook`. BookingBook tracks all the bookings created. It implements the following
+operation that support the edit booking feature:
+    `BookingBook#setBooking()` - set the target booking to the edited booking    
+    
+These operation is exposed in the `Model` interface as `Model#setBooking()`.
+
+Given below is an example usage scenario:
+
+Step 1. The user launches the ConciergeBook application. Data will be loaded from the storage to the application 
+memory. The `BookingBook` will be populated with `bookings` and the `AddressBook` will be populated with `persons`.
+
+Step 2. (Optional) The user executes `listBooking` command to list out all the bookings and find out the booking ID of
+the booking to edit.
+
+Step 3. The user executes `editBooking bid/2 rid/2103 sd/2020-12-30 ed/2020-12-31` command to edit booking with booking
+ID 2. The room ID will be overwritten by 2103, start date by 30 December 2020, end date by 31 December 2020. Person ID
+and booking ID cannot be modified. 
+
+Step 4. If the booking ID exists and there is at least one other parameters to edit, the application will create a new
+`booking` to replace the old booking with the booking ID and store it in `Model`. Else, ConciergeBook will display
+error message to show sample usage.
+
+Given below is the sequence diagram that shows how the edit booking operation works (in step 5).
+
+![EditBookingSequenceDiagram](images/EditBookingSequenceDiagram.png)
+
+<div markdown="span" class="alert alert-info">:information_source: **Note:** If the booking id that the user keys
+into the system does not exist, a CommandException will be thrown and the error will be displayed to the user.
+Also, if the only booking ID is specified, an error message will be shown to ask user to provide at least one field.
+If the edited booking duplicates or conflicts with existing booking, an error message will be shown as well. 
+
+</div>
+
+The following activity diagram summarises what happens when a user executes a `editBooking` command:
+
+![EditBookingActivityDiagram](images/EditBookingActivityDiagram.png)
+
+<!-- Edit booking feature -->
 
 ### \[Proposed\] Undo/redo feature
 

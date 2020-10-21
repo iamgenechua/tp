@@ -1,0 +1,61 @@
+@startuml
+!include style.puml
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
+participant ":findBookingCommandParser" as findBookingCommandParser LOGIC_COLOR
+participant "c:findBookingCommand" as findBookingCommand LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant ":Model" as Model MODEL_COLOR
+participant ":BookingBook" as BookingBook MODEL_COLOR
+end box
+
+-> LogicManager: execute ("findBooking pid/2103")
+activate LogicManager
+LogicManager -> AddressBookParser: parseCommand("findBooking pid/2103")
+activate AddressBookParser
+
+create findBookingCommandParser
+AddressBookParser -> findBookingCommandParser
+activate findBookingCommandParser
+
+create findBookingCommand
+findBookingCommandParser -> findBookingCommand
+activate findBookingCommand
+
+findBookingCommand --> findBookingCommandParser
+deactivate findBookingCommand
+
+findBookingCommandParser --> AddressBookParser : c
+deactivate findBookingCommandParser
+
+AddressBookParser --> LogicManager : c
+deactivate AddressBookParser
+
+LogicManager -> findBookingCommand : execute()
+activate findBookingCommand
+
+findBookingCommand -> Model : updateFilteredList()
+
+activate Model
+
+Model -> BookingBook : updateFilteredList()
+activate BookingBook
+
+BookingBook --> Model :
+deactivate BookingBook
+
+Model --> findBookingCommand
+deactivate Model
+
+findBookingCommand --> LogicManager : result
+deactivate findBookingCommand
+findBookingCommand -[hidden]-> LogicManager : result
+destroy findBookingCommand
+
+[<--LogicManager
+deactivate LogicManager
+@enduml

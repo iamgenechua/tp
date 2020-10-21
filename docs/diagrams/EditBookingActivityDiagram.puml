@@ -1,0 +1,21 @@
+@startuml
+start
+:User executes command;
+
+if () then ([else])
+    :Send error message to indicate
+    the invalid parameter(s) entered in the command;
+
+else ([booking id & valid parameters])
+    if () then ([duplicated or conflicting booking])
+        :Send error message to indicate
+        duplicated or conflicting booking;
+
+    else ([else])
+    :Replace target booking with edited booking;
+    :Save edited booking to BookingBook;
+    endif
+endif
+stop
+
+@enduml

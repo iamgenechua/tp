@@ -69,6 +69,7 @@ public class GetBillCommand extends Command {
         for (RoomService roomService : roomServices) {
             RoomServiceType roomServiceType = roomService.getType();
             billBreakdown += roomServiceType.getVerboseName() + ": " + roomServiceType.getPrice() + "\n";
+            totalPrice += roomServiceType.getPrice();
         }
 
         return new CommandResult(billBreakdown

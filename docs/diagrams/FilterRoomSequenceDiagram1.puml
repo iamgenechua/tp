@@ -1,0 +1,26 @@
+@startuml
+box "Logic" LOGIC_COLOR_T1
+participant LogicManager LOGIC_COLOR
+participant AddressBookParser LOGIC_COLOR
+participant FilterRoomCommandParser LOGIC_COLOR
+end box
+
+[-> LogicManager: execute("filterRoom sd/2020-11-12")
+activate LogicManager
+
+LogicManager -> AddressBookParser: parseCommand("filterRoom sd/2020-11-12")
+activate AddressBookParser
+
+AddressBookParser -> FilterRoomCommandParser: parse("sd/2020-11-12")
+activate FilterRoomCommandParser
+
+FilterRoomCommandParser --> AddressBookParser: throw ParseException("Invalid Command Input.")
+deactivate FilterRoomCommandParser
+destroy FilterRoomCommandParser
+
+AddressBookParser --> LogicManager: throw ParseException("Invalid Command Input.")
+deactivate AddressBookParser
+
+[<--LogicManager
+deactivate LogicManager
+@enduml

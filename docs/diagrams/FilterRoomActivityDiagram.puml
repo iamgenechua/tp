@@ -1,0 +1,14 @@
+@startuml
+start
+:User executes FilterRoomCommand;
+
+if () then ([else])
+    :Send error message to
+    user indicating the invalid parameter(s) entered in the command;
+
+else ([valid parameters entered])
+    :Query BookingBook for a list of unavailable room Ids;
+    :Retrieve a list of available room Ids from RoomBook;
+endif
+stop
+@enduml

@@ -1,0 +1,67 @@
+@startuml
+!include style.puml
+
+box "Logic" LOGIC_COLOR_1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
+participant ":FilterRoomCommandParser" as FilterRoomCommandParser LOGIC_COLOR
+participant ":FilterRoomCommand" as FilterRoomCommand LOGIC_COLOR
+end box
+
+box "Model" MODEL+COLOR_T1
+participant ":Model" as Model MODEL_COLOR
+participant ":BookingBook" as BookingBook MODEL_COLOR
+participant ":RoomBook" as RoomBook MODEL_COLOR
+end box
+
+[-> LogicManager: execute(filterRoom)
+activate LogicManager
+
+LogicManager -> AddressBookParser: parseCommand(filterRoom)
+activate AddressBookParser
+
+AddressBookParser -> FilterRoomCommandParser: parse()
+activate FilterRoomCommandParser
+
+FilterRoomCommandParser --> AddressBookParser
+deactivate FilterRoomCommandParser
+destroy FilterRoomCommandParser
+
+AddressBookParser --> LogicManager: FilterRoomCommand
+deactivate AddressBookParser
+destroy AddressBookParser
+
+LogicManager -> FilterRoomCommand: execute()
+activate FilterRoomCommand
+
+FilterRoomCommand -> Model : getUnavailableRooms()
+activate Model
+
+Model -> BookingBook : getUnavailableRooms()
+activate BookingBook
+
+BookingBook --> Model
+deactivate BookingBook
+
+Model --> FilterRoomCommand
+deactivate Model
+
+FilterRoomCommand -> Model : getAvailableRooms()
+activate Model
+
+Model -> RoomBook : getAvailableRooms()
+activate RoomBook
+
+RoomBook --> Model
+deactivate RoomBook
+
+Model --> FilterRoomCommand
+deactivate Model
+
+FilterRoomCommand --> LogicManager
+deactivate FilterRoomCommand
+destroy FilterRoomCommand
+
+ [<-- LogicManager
+deactivate LogicManager
+@enduml
