@@ -294,6 +294,8 @@ Aspect: which parameters should be allowed to use in find Booking?
     due to a field provided by the customer is incorrect so there is no matching.
 <!-- Find Booking feature -->
 
+<!-- Unarchive Booking feature -->
+<!-- Unarchive Booking feature -->
 
 <!-- Room service feature -->
 ### Order Room Service feature 
